@@ -1,5 +1,7 @@
-﻿using Financial_Dashboard_App.Services;
+﻿using Financial_Dashboard_App.Models;
+using Financial_Dashboard_App.Services;
 using Financial_Dashboard_App.ViewModels;
+using System.Collections.ObjectModel;
 using System.Windows;
 
 namespace Financial_Dashboard_App
@@ -18,33 +20,13 @@ namespace Financial_Dashboard_App
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            navigationService.CurrentViewModel = CreateDashBoardViewModel();
+            navigationService.CurrentViewModel = new DashboardViewModel();
             MainWindow = new MainWindow()
             {
                 DataContext = new MainViewModel(navigationService)
             };
             MainWindow.Show();
             base.OnStartup(e);
-        }
-
-        private DashboardViewModel CreateDashBoardViewModel()
-        {
-            return new DashboardViewModel();
-        }
-
-        private TransactionsViewModel CreateTransactionsViewModel()
-        {
-            return new TransactionsViewModel();
-        }
-
-        private ImportDataViewModel CreateImportDataViewModel()
-        {
-            return new ImportDataViewModel();
-        }
-
-        private ReportsViewModel CreateReportsViewModel()
-        {
-            return new ReportsViewModel();
         }
     }
 }

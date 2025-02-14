@@ -1,9 +1,8 @@
-﻿using Financial_Dashboard_App.Services;
+﻿using Financial_Dashboard_App.Models;
+using Financial_Dashboard_App.Services;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 
 namespace Financial_Dashboard_App.ViewModels
 {
@@ -23,7 +22,7 @@ namespace Financial_Dashboard_App.ViewModels
             NavigationBarViewModel = new NavigationBarViewModel(
                 navigationService,
                 () => new DashboardViewModel(),
-                () => new TransactionsViewModel(),
+                () => new TransactionsViewModel(new ObservableCollection<Transaction>()),
                 () => new ImportDataViewModel(),
                 () => new ReportsViewModel()
             );

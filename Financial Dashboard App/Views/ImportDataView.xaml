@@ -7,6 +7,45 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <TextBlock Text="Import Data"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <TextBlock Text="Import Data" FontSize="24" FontWeight="Bold" Margin="10"/>
+
+        <StackPanel Grid.Row="1" Margin="10">
+            <GroupBox Header="Manual Data Entry">
+                <StackPanel Margin="10">
+                    <TextBlock Text="Transaction Type:"/>
+                    <ComboBox ItemsSource="{Binding TransactionTypes}" SelectedItem="{Binding SelectedTransactionType, Mode=TwoWay}"/>
+
+                    <TextBlock Text="Description:"/>
+                    <TextBox Text="{Binding Description}"/>
+
+                    <TextBlock Text="Amount:"/>
+                    <TextBox Text="{Binding Amount}"/>
+
+                    <TextBlock Text="Date:"/>
+                    <DatePicker SelectedDate="{Binding TransactionDate}"/>
+
+                    <Button Content="Add Entry" Command="{Binding AddEntryCommand}"/>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox Header="Transaction List">
+                <DataGrid ItemsSource="{Binding Transactions}" AutoGenerateColumns="True"/>
+            </GroupBox>
+
+            <GroupBox Header="Import from Excel">
+                <StackPanel Margin="10">
+                    <TextBlock Text="Select Excel File:"/>
+                    <Button Content="Browse..." Command="{Binding BrowseFilesCommand}"/>
+                    <TextBlock Text="{Binding SelectedFileName}"/>
+                    <Button Content="Import" Command="{Binding ImportExcelCommand}"/>
+                </StackPanel>
+            </GroupBox>
+        </StackPanel>
+
     </Grid>
 </UserControl>
