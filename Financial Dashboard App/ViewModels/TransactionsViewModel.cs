@@ -1,4 +1,6 @@
-﻿using Financial_Dashboard_App.Models;
+﻿using Financial_Dashboard_App.Commands;
+using Financial_Dashboard_App.Models;
+using Financial_Dashboard_App.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,9 +14,22 @@ namespace Financial_Dashboard_App.ViewModels
 {
     public class TransactionsViewModel : BaseViewModel
     {
-        public ObservableCollection<Transaction> Transactions { get; set; }
-        public ObservableCollection<Transaction> FilteredTransactions { get; set; }
-        public List<string> TransactionTypes { get; } = new List<string> { "All", "Income", "Expenses" };
+        private readonly IDatabaseService databaseService;
+
+        public ObservableCollection<Transaction> Transactions { get; set; } = new ObservableCollection<Transaction>();
+        public ObservableCollection<Transaction> FilteredTransactions { get; set; } = new ObservableCollection<Transaction>();
+        public List<string> TransactionTypes { get; } = new List<string> { "All", "Income", "Expense" };
+
+        private Transaction selectedTransaction;
+        public Transaction SelectedTransaction
+        {
+            get => selectedTransaction;
+            set
+            {
+                selectedTransaction = value;
+                OnPropertyChanged(nameof(SelectedTransaction));
+            }
+        }
 
         private string selectedFilter = "All";
         public string SelectedFilter
@@ -24,6 +39,7 @@ namespace Financial_Dashboard_App.ViewModels
             {
                 selectedFilter = value;
                 OnPropertyChanged(nameof(SelectedFilter));
+                FilterTransactions();
             }
         }
 
@@ -35,23 +51,52 @@ namespace Financial_Dashboard_App.ViewModels
             {
                 searchText = value;
                 OnPropertyChanged(nameof(SearchText));
+                FilterTransactions();
             }
         }
 
-        public ICommand EditCommand;
-        public ICommand DeleteCommand;
-
-        public TransactionsViewModel(ObservableCollection<Transaction> transactions)
+        private Transaction? editingTransaction;
+        public Transaction? EditingTransaction
         {
-            Transactions = transactions;
-            FilteredTransactions = new ObservableCollection<Transaction>(transactions);
+            get => editingTransaction;
+            set
+            {
+                editingTransaction = value;
+                OnPropertyChanged(nameof(EditingTransaction));
+            }
+        }
+
+        public bool IsEditing => EditingTransaction != null;
+
+        public ICommand EditCommand { get; }
+        public ICommand SaveCommand { get; }
+        public ICommand DeleteCommand { get; }
+
+        public TransactionsViewModel(IDatabaseService databaseService)
+        {
+            this.databaseService = databaseService;
+            EditCommand = new EditTransactionCommand(EditTransaction);
+            SaveCommand = new SaveTransactionCommand(SaveTransaction);
+            DeleteCommand = new DeleteTransactionCommand(DeleteTransaction);
+            LoadTransactions();
+        }
+
+        private async Task LoadTransactions()
+        {
+            var transactions = await databaseService.GetAllTransactions();
+            Transactions.Clear();
+            foreach (var transaction in transactions)
+            {
+                Transactions.Add(transaction);
+            }
+            FilterTransactions();
         }
 
         private void FilterTransactions()
         {
-            var filteredTransactions = Transactions.Where(transaction =>
-                (SelectedFilter == "All" || transaction.Type == selectedFilter) &&
-                (string.IsNullOrWhiteSpace(SearchText) || transaction.Description.Contains(SearchText, StringComparison.OrdinalIgnoreCase)) 
+            var filteredTransactions = Transactions.Where(t =>
+                (SelectedFilter == "All" || t.Type == selectedFilter) &&
+                (string.IsNullOrWhiteSpace(SearchText) || t.Description.Contains(SearchText, StringComparison.OrdinalIgnoreCase)) 
             ).ToList();
             FilteredTransactions.Clear();
             foreach(var transaction in filteredTransactions)
@@ -60,21 +105,28 @@ namespace Financial_Dashboard_App.ViewModels
             }
         }
 
-        private void EditTransaction(object parameter)
+        private async Task EditTransaction(Transaction transaction)
         {
-            if(parameter is Transaction transaction)
+            if (EditingTransaction == null)
             {
-                MessageBox.Show("Edit");
+                transaction.IsEditing = true;
+                EditingTransaction = transaction;
             }
         }
 
-        private void DeleteTransaction(object parameter)
+        private async Task SaveTransaction(Transaction transaction)
         {
-            if(parameter is Transaction transaction)
-            {
-                Transactions.Remove(transaction);
-                FilterTransactions();
-            }
+            transaction.IsEditing = false;
+            EditingTransaction = null;
+            await databaseService.UpdateTransaction(transaction);
+            await LoadTransactions();
+        }
+
+        private async Task DeleteTransaction(Transaction transaction)
+        {
+            Transactions.Remove(transaction);
+            FilterTransactions();
+            await databaseService.DeleteTransaction(transaction);
         }
     }
 }

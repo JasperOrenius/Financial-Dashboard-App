@@ -6,16 +6,21 @@ using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using ClosedXML.Excel;
+using Financial_Dashboard_App.Services;
 
 namespace Financial_Dashboard_App.ViewModels
 {
     public class ImportDataViewModel : BaseViewModel
     {
+        private readonly IDatabaseService databaseService;
+
         public ObservableCollection<Transaction> Transactions { get; set; } = new ObservableCollection<Transaction>();
+
         public List<string> TransactionTypes { get; } = new List<string>
         {
             "Income", "Expense"
         };
+
         private string selectedTransactionType;
         public string SelectedTransactionType
         {
@@ -26,6 +31,7 @@ namespace Financial_Dashboard_App.ViewModels
                 OnPropertyChanged(nameof(SelectedTransactionType));
             }
         }
+
         private decimal amount;
         public decimal Amount
         {
@@ -36,6 +42,7 @@ namespace Financial_Dashboard_App.ViewModels
                 OnPropertyChanged(nameof(Amount));
             }
         }
+
         private string description;
         public string Description
         {
@@ -46,6 +53,7 @@ namespace Financial_Dashboard_App.ViewModels
                 OnPropertyChanged(nameof(Description));
             }
         }
+
         public DateTime TransactionDate { get; set; } = DateTime.Today;
         public string SelectedFileName { get; set; }
 
@@ -53,8 +61,9 @@ namespace Financial_Dashboard_App.ViewModels
         public ICommand BrowseFilesCommand { get; }
         public ICommand ImportExcelCommand { get; }
 
-        public ImportDataViewModel()
+        public ImportDataViewModel(IDatabaseService databaseService)
         {
+            this.databaseService = databaseService;
             AddEntryCommand = new RelayCommand(AddEntry);
             BrowseFilesCommand = new RelayCommand(BrowseFiles);
         }
@@ -65,19 +74,22 @@ namespace Financial_Dashboard_App.ViewModels
             {
                 return;
             }
-            Transactions.Add(new Transaction
+            var newTransaction = new Transaction
             {
                 Type = SelectedTransactionType,
                 Description = Description,
                 Amount = Amount,
                 Date = TransactionDate
-            });
+            };
+            await databaseService.CreateTransaction(newTransaction);
+            Transactions.Add(newTransaction);
             SelectedTransactionType = string.Empty;
             Description = string.Empty;
             Amount = 0;
             OnPropertyChanged(nameof(SelectedTransactionType));
             OnPropertyChanged(nameof(Description));
             OnPropertyChanged(nameof(Amount));
+            MessageBox.Show("Transaction added");
         }
 
         private async Task BrowseFiles()
@@ -103,6 +115,7 @@ namespace Financial_Dashboard_App.ViewModels
             }
             try
             {
+                var importedTransactions = new List<Transaction>();
                 await Task.Run(() =>
                 {
                     using(var workbook = new XLWorkbook())
@@ -111,16 +124,22 @@ namespace Financial_Dashboard_App.ViewModels
                         var rows = worksheet.RangeUsed().RowsUsed();
                         foreach(var row in rows.Skip(1))
                         {
-                            Transactions.Add(new Transaction
+                            var transaction = new Transaction
                             {
                                 Date = DateTime.Parse(row.Cell(1).GetString()),
                                 Description = row.Cell(2).GetString(),
                                 Amount = decimal.Parse(row.Cell(3).GetString()),
                                 Type = row.Cell(4).GetString()
-                            });
+                            };
+                            importedTransactions.Add(transaction);
                         }
                     }
                 });
+                foreach(var transaction in importedTransactions)
+                {
+                    await databaseService.CreateTransaction(transaction);
+                    Transactions.Add(transaction);
+                }
             }
             catch (Exception ex)
             {

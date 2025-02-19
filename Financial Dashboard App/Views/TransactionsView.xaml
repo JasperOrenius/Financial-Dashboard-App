@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:Financial_Dashboard_App.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
+    <Grid x:Name="RootGrid">
         <StackPanel Orientation="Vertical" Margin="10">
             <StackPanel Orientation="Horizontal" Margin="5">
                 <ComboBox ItemsSource="{Binding TransactionTypes}" SelectedItem="{Binding SelectedFilter, Mode=TwoWay}" Width="150" Margin="5"/>
@@ -14,16 +14,105 @@
             </StackPanel>
             <DataGrid ItemsSource="{Binding FilteredTransactions}" AutoGenerateColumns="False" CanUserAddRows="False" Margin="5">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Date" Binding="{Binding Date}" Width="120"/>
-                    <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="200"/>
-                    <DataGridTextColumn Header="Amount" Binding="{Binding Amount}" Width="100"/>
-                    <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="100"/>
+                    <DataGridTemplateColumn Header="Date" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <TextBlock x:Name="tbDate" Text="{Binding Date, StringFormat=\{0:dd/MM/yyyy\}}"/>
+                                    <DatePicker x:Name="dpDate" SelectedDate="{Binding Date, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="Collapsed"/>
+                                </Grid>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                        <Setter TargetName="tbDate" Property="Visibility" Value="Collapsed"/>
+                                        <Setter TargetName="dpDate" Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Description" Width="200">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <TextBlock x:Name="tbDescription" Text="{Binding Description}"/>
+                                    <TextBox x:Name="txtDescription" Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="Collapsed"/>
+                                </Grid>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                        <Setter TargetName="tbDescription" Property="Visibility" Value="Collapsed"/>
+                                        <Setter TargetName="txtDescription" Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Amount" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <TextBlock x:Name="tbAmount" Text="{Binding Amount}"/>
+                                    <TextBox x:Name="txtAmount" Text="{Binding Amount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="Collapsed"/>
+                                </Grid>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                        <Setter TargetName="tbAmount" Property="Visibility" Value="Collapsed"/>
+                                        <Setter TargetName="txtAmount" Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Type" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <TextBlock x:Name="tbType" Text="{Binding Type}"/>
+                                    <TextBox x:Name="txtType" Text="{Binding Type, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="Collapsed"/>
+                                </Grid>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                        <Setter TargetName="tbType" Property="Visibility" Value="Collapsed"/>
+                                        <Setter TargetName="txtType" Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="Actions" Width="150">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <Button Content="Edit" Command="{Binding EditCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Width="60" Margin="2"/>
-                                    <Button Content="Delete" Command="{Binding DeleteCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Width="60" Margin="2"/>
+                                    <Button Content="Edit"  
+                                            Command="{Binding DataContext.EditCommand, ElementName=RootGrid}" 
+                                            CommandParameter="{Binding}" 
+                                            Width="60" Margin="2">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                    <Button Content="Save"  
+                                            Command="{Binding DataContext.SaveCommand, ElementName=RootGrid}" 
+                                            CommandParameter="{Binding}" 
+                                            Width="60" Margin="2">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                    <Button Content="Delete" Command="{Binding DataContext.DeleteCommand, ElementName=RootGrid}" CommandParameter="{Binding}" Width="60" Margin="2"/>
                                 </StackPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>

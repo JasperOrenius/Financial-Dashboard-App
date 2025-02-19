@@ -14,16 +14,16 @@ namespace Financial_Dashboard_App.ViewModels
 
         public NavigationBarViewModel NavigationBarViewModel { get; }
 
-        public MainViewModel(NavigationService navigationService)
+        public MainViewModel(NavigationService navigationService, IDatabaseService databaseService)
         {
             this.navigationService = navigationService;
             this.navigationService.CurrentViewModelChanged += OnCurrentViewModelChanged;
 
             NavigationBarViewModel = new NavigationBarViewModel(
                 navigationService,
-                () => new DashboardViewModel(),
-                () => new TransactionsViewModel(new ObservableCollection<Transaction>()),
-                () => new ImportDataViewModel(),
+                () => new DashboardViewModel(databaseService),
+                () => new TransactionsViewModel(databaseService),
+                () => new ImportDataViewModel(databaseService),
                 () => new ReportsViewModel()
             );
         }

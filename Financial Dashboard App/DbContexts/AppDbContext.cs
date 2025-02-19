@@ -5,11 +5,8 @@ namespace Financial_Dashboard_App.DbContexts
 {
     public class AppDbContext : DbContext
     {
-        public DbSet<Transaction> Transactions { get; set; }
+        public AppDbContext(DbContextOptions options) : base(options) { }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlite("Data Source=transactions.db");
-        }
+        public DbSet<Transaction> Transactions { get; set; }
     }
 }

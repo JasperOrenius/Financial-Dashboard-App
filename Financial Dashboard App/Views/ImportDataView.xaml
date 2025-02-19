@@ -33,10 +33,6 @@
                 </StackPanel>
             </GroupBox>
 
-            <GroupBox Header="Transaction List">
-                <DataGrid ItemsSource="{Binding Transactions}" AutoGenerateColumns="True"/>
-            </GroupBox>
-
             <GroupBox Header="Import from Excel">
                 <StackPanel Margin="10">
                     <TextBlock Text="Select Excel File:"/>
