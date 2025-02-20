@@ -1,8 +1,4 @@
-﻿using Financial_Dashboard_App.Models;
-using Financial_Dashboard_App.Services;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using Financial_Dashboard_App.Services;
 
 namespace Financial_Dashboard_App.ViewModels
 {
@@ -24,7 +20,7 @@ namespace Financial_Dashboard_App.ViewModels
                 () => new DashboardViewModel(databaseService),
                 () => new TransactionsViewModel(databaseService),
                 () => new ImportDataViewModel(databaseService),
-                () => new ReportsViewModel()
+                () => new ReportsViewModel(databaseService)
             );
         }
 

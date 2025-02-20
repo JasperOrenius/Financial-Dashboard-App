@@ -56,9 +56,10 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <TextBlock Text="Income vs Expenses" FontSize="16" FontWeight="Bold"/>
-                    <Chart:CartesianChart Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                    <Chart:CartesianChart Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" LegendLocation="Bottom">
                         <Chart:CartesianChart.Series>
-                            <Chart:ColumnSeries Values="{Binding IncomeExpenseSeries}"/>
+                            <Chart:ColumnSeries Title="Income" Values="{Binding IncomeSeries}" Fill="Green" DataLabels="True"/>
+                            <Chart:ColumnSeries Title="Expenses" Values="{Binding ExpenseSeries}" Fill="Red" DataLabels="True"/>
                         </Chart:CartesianChart.Series>
                     </Chart:CartesianChart>
                 </Grid>
@@ -71,11 +72,7 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <TextBlock Text="Expense BreakDown" FontSize="16" FontWeight="Bold"/>
-                    <Chart:PieChart Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-                        <Chart:PieChart.Series>
-                            <Chart:PieSeries Values="{Binding ExpenseBreakdownSeries}" Title="Expense Breakdown"/>
-                        </Chart:PieChart.Series>
-                    </Chart:PieChart>
+                    <Chart:PieChart Grid.Row="1" Series="{Binding ExpenseBreakdownSeries}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" HoverPushOut="8"/>
                 </Grid>
             </Border>
 

@@ -2,6 +2,7 @@
 using Financial_Dashboard_App.Models;
 using Financial_Dashboard_App.Services;
 using LiveCharts;
+using LiveCharts.Wpf;
 
 namespace Financial_Dashboard_App.ViewModels
 {
@@ -9,8 +10,9 @@ namespace Financial_Dashboard_App.ViewModels
     {
         private readonly IDatabaseService databaseService;
 
-        public ChartValues<decimal> IncomeExpenseSeries { get; set; } = new ChartValues<decimal>();
-        public ChartValues<decimal> ExpenseBreakdownSeries { get; set; } = new ChartValues<decimal>();
+        public ChartValues<decimal> IncomeSeries { get; set; } = new ChartValues<decimal>();
+        public ChartValues<decimal> ExpenseSeries { get; set; } = new ChartValues<decimal>();
+        public SeriesCollection ExpenseBreakdownSeries { get; set; } = new SeriesCollection();
         public ChartValues<decimal> ProfitGrowthSeries { get; set; } = new ChartValues<decimal>();
 
         private decimal totalIncome;
@@ -68,6 +70,11 @@ namespace Financial_Dashboard_App.ViewModels
             var transactions = await databaseService.GetAllTransactions();
             if(transactions.Any())
             {
+                IncomeSeries.Clear();
+                ExpenseSeries.Clear();
+                ExpenseBreakdownSeries.Clear();
+                ProfitGrowthSeries.Clear();
+
                 TotalIncome = transactions.Where(t => t.Type == "Income").Sum(t => t.Amount);
                 TotalExpenses = transactions.Where(t => t.Type == "Expense").Sum(t => t.Amount);
                 NetProfit = TotalIncome - TotalExpenses;
@@ -82,12 +89,16 @@ namespace Financial_Dashboard_App.ViewModels
                     GrowthRate = Math.Round(initialProfit > 0 ? (NetProfit - initialProfit) / initialProfit * 100 : 0, 2);
                 }
 
-                IncomeExpenseSeries.Add(TotalIncome);
-                IncomeExpenseSeries.Add(TotalExpenses);
+                IncomeSeries.Add(TotalIncome);
+                ExpenseSeries.Add(TotalExpenses);
                 var expenseGroups = transactions.Where(t => t.Type == "Expense").GroupBy(t => t.Description).Select(g => new { Description = g.Key, Total = g.Sum(t => t.Amount) });
                 foreach(var group in expenseGroups)
                 {
-                    ExpenseBreakdownSeries.Add(group.Total);
+                    ExpenseBreakdownSeries.Add(new PieSeries
+                    {
+                        Title = group.Description,
+                        Values = new ChartValues<decimal> { group.Total }
+                    });
                 }
 
                 foreach(var month in Enumerable.Range(0, months))

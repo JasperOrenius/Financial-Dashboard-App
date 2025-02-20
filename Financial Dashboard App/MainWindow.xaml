@@ -7,7 +7,7 @@
         xmlns:viewmodels="clr-namespace:Financial_Dashboard_App.ViewModels"
         mc:Ignorable="d"
         Title="MainWindow"
-        SizeToContent="WidthAndHeight" MinWidth="850" MinHeight="500">
+        SizeToContent="Manual" Width="1000" Height="600" MinWidth="915" MinHeight="500">
     <Grid>
         <Grid.Resources>
             <DataTemplate DataType="{x:Type viewmodels:DashboardViewModel}">
