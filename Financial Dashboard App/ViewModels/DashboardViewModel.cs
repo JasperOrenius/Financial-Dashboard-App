@@ -3,6 +3,7 @@ using Financial_Dashboard_App.Models;
 using Financial_Dashboard_App.Services;
 using LiveCharts;
 using LiveCharts.Wpf;
+using System.Runtime.ExceptionServices;
 
 namespace Financial_Dashboard_App.ViewModels
 {
@@ -91,14 +92,36 @@ namespace Financial_Dashboard_App.ViewModels
 
                 IncomeSeries.Add(TotalIncome);
                 ExpenseSeries.Add(TotalExpenses);
-                var expenseGroups = transactions.Where(t => t.Type == "Expense").GroupBy(t => t.Description).Select(g => new { Description = g.Key, Total = g.Sum(t => t.Amount) });
-                foreach(var group in expenseGroups)
+                var expenseGroups = transactions.Where(t => t.Type == "Expense").GroupBy(t => t.Description).Select(g => new { Description = g.Key, Total = g.Sum(t => t.Amount) }).OrderByDescending(g => g.Total).ToList();
+                if(expenseGroups.Count > 4)
                 {
+                    var topGroups = expenseGroups.Take(4).ToList();
+                    var otherTotal = expenseGroups.Skip(4).Sum(g => g.Total);
+                    foreach(var group in topGroups)
+                    {
+                        ExpenseBreakdownSeries.Add(new PieSeries
+                        {
+                            Title = group.Description,
+                            Values = new ChartValues<decimal> { group.Total }
+                        });
+                    }
+
                     ExpenseBreakdownSeries.Add(new PieSeries
                     {
-                        Title = group.Description,
-                        Values = new ChartValues<decimal> { group.Total }
+                        Title = "Other",
+                        Values = new ChartValues<decimal> { otherTotal }
                     });
+                }
+                else
+                {
+                    foreach(var group in expenseGroups)
+                    {
+                        ExpenseBreakdownSeries.Add(new PieSeries
+                        {
+                            Title = group.Description,
+                            Values = new ChartValues<decimal> { group.Total }
+                        });
+                    }
                 }
 
                 foreach(var month in Enumerable.Range(0, months))
