@@ -7,11 +7,15 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid x:Name="RootGrid">
-        <StackPanel Orientation="Vertical" Margin="10">
-            <StackPanel Orientation="Horizontal" Margin="5">
-                <ComboBox ItemsSource="{Binding TransactionTypes}" SelectedItem="{Binding SelectedFilter, Mode=TwoWay}" Width="150" Margin="5"/>
-                <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="200" Margin="5"/>
-            </StackPanel>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5">
+            <ComboBox ItemsSource="{Binding TransactionTypes}" SelectedItem="{Binding SelectedFilter, Mode=TwoWay}" Width="150" Margin="5"/>
+            <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="200" Margin="5"/>
+        </StackPanel>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <DataGrid ItemsSource="{Binding FilteredTransactions}" AutoGenerateColumns="False" CanUserAddRows="False" Margin="5">
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Header="Date" Width="*">
@@ -25,6 +29,22 @@
                                     <DataTrigger Binding="{Binding IsEditing}" Value="True">
                                         <Setter TargetName="tbDate" Property="Visibility" Value="Collapsed"/>
                                         <Setter TargetName="dpDate" Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Type" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <TextBlock x:Name="tbType" Text="{Binding Type}"/>
+                                    <TextBox x:Name="txtType" Text="{Binding Type, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="Collapsed"/>
+                                </Grid>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                        <Setter TargetName="tbType" Property="Visibility" Value="Collapsed"/>
+                                        <Setter TargetName="txtType" Property="Visibility" Value="Visible"/>
                                     </DataTrigger>
                                 </DataTemplate.Triggers>
                             </DataTemplate>
@@ -57,22 +77,6 @@
                                     <DataTrigger Binding="{Binding IsEditing}" Value="True">
                                         <Setter TargetName="tbAmount" Property="Visibility" Value="Collapsed"/>
                                         <Setter TargetName="txtAmount" Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </DataTemplate.Triggers>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="Type" Width="*">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Grid>
-                                    <TextBlock x:Name="tbType" Text="{Binding Type}"/>
-                                    <TextBox x:Name="txtType" Text="{Binding Type, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="Collapsed"/>
-                                </Grid>
-                                <DataTemplate.Triggers>
-                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
-                                        <Setter TargetName="tbType" Property="Visibility" Value="Collapsed"/>
-                                        <Setter TargetName="txtType" Property="Visibility" Value="Visible"/>
                                     </DataTrigger>
                                 </DataTemplate.Triggers>
                             </DataTemplate>
@@ -119,6 +123,6 @@
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
-        </StackPanel>
+        </ScrollViewer>
     </Grid>
 </UserControl>

@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Input;
 using ClosedXML.Excel;
 using Financial_Dashboard_App.Services;
+using System.Globalization;
 
 namespace Financial_Dashboard_App.ViewModels
 {
@@ -66,6 +67,7 @@ namespace Financial_Dashboard_App.ViewModels
             this.databaseService = databaseService;
             AddEntryCommand = new RelayCommand(AddEntry);
             BrowseFilesCommand = new RelayCommand(BrowseFiles);
+            ImportExcelCommand = new RelayCommand(ImportExcel);
         }
 
         private async Task AddEntry()
@@ -118,7 +120,7 @@ namespace Financial_Dashboard_App.ViewModels
                 var importedTransactions = new List<Transaction>();
                 await Task.Run(() =>
                 {
-                    using(var workbook = new XLWorkbook())
+                    using(var workbook = new XLWorkbook(SelectedFileName))
                     {
                         var worksheet = workbook.Worksheet(1);
                         var rows = worksheet.RangeUsed().RowsUsed();
@@ -127,9 +129,9 @@ namespace Financial_Dashboard_App.ViewModels
                             var transaction = new Transaction
                             {
                                 Date = DateTime.Parse(row.Cell(1).GetString()),
-                                Description = row.Cell(2).GetString(),
-                                Amount = decimal.Parse(row.Cell(3).GetString()),
-                                Type = row.Cell(4).GetString()
+                                Type = row.Cell(2).GetString(),
+                                Description = row.Cell(3).GetString(),
+                                Amount = decimal.Parse(row.Cell(4).GetString(), CultureInfo.InvariantCulture)
                             };
                             importedTransactions.Add(transaction);
                         }
@@ -140,6 +142,7 @@ namespace Financial_Dashboard_App.ViewModels
                     await databaseService.CreateTransaction(transaction);
                     Transactions.Add(transaction);
                 }
+                MessageBox.Show("Excel file imported successfully!");
             }
             catch (Exception ex)
             {
