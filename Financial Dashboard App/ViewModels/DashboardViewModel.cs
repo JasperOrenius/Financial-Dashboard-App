@@ -81,14 +81,9 @@ namespace Financial_Dashboard_App.ViewModels
                 NetProfit = TotalIncome - TotalExpenses;
 
                 var startDate = transactions.Min(t => t.Date);
-                var endDate = transactions.Max(t => t.Date);
-                var months = (endDate.Year - startDate.Year) * 12 + endDate.Month - startDate.Month + 1;
+                var initialProfit = transactions.Where(t => t.Date == startDate).Sum(t => t.Type == "Income" ? t.Amount : -t.Amount);
 
-                if(months > 1)
-                {
-                    var initialProfit = transactions.Where(t => t.Date.Month == startDate.Month && t.Date.Year == startDate.Year).Sum(t => t.Type == "Income" ? t.Amount : -t.Amount);
-                    GrowthRate = Math.Round(initialProfit > 0 ? (NetProfit - initialProfit) / initialProfit * 100 : 0, 2);
-                }
+                GrowthRate = Math.Round(initialProfit > 0 ? (NetProfit - initialProfit) / initialProfit * 100 : 0, 2);
 
                 IncomeSeries.Add(TotalIncome);
                 ExpenseSeries.Add(TotalExpenses);
@@ -124,11 +119,20 @@ namespace Financial_Dashboard_App.ViewModels
                     }
                 }
 
-                foreach(var month in Enumerable.Range(0, months))
+                var transactionMonths = transactions.Select(t => new DateTime(t.Date.Year, t.Date.Month, 1)).Distinct().OrderBy(d => d).ToList();
+
+                if(transactionMonths.Count > 1)
                 {
-                    var monthDate = startDate.AddMonths(month);
-                    var monthlyProfit = transactions.Where(t => t.Date.Month == monthDate.Month && t.Date.Year == monthDate.Year).Sum(t => t.Type == "Income" ? t.Amount : -t.Amount);
-                    ProfitGrowthSeries.Add(monthlyProfit);
+                    foreach(var month in transactionMonths)
+                    {
+                        var monthlyProfit = transactions.Where(t => t.Date.Month == month.Month && t.Date.Year == month.Year).Sum(t => t.Type == "Income" ? t.Amount : -t.Amount);
+                        ProfitGrowthSeries.Add(monthlyProfit);
+                    }
+                }
+                else
+                {
+                    ProfitGrowthSeries.Add(initialProfit);
+                    ProfitGrowthSeries.Add(NetProfit);
                 }
             }
         }

@@ -102,32 +102,32 @@ namespace Financial_Dashboard_App.ViewModels
             gfx.DrawString($"Date: {DateTime.Now.ToShortDateString()}", regularFont, XBrushes.Black, new XPoint(50, 80));
 
             int maxDateWidth = (int)transactions.Max(t => gfx.MeasureString(t.Date.ToShortDateString(), regularFont).Width);
+            int maxTypeWidth = (int)transactions.Max(t => gfx.MeasureString(t.Type, regularFont).Width);
             int maxDescriptionWidth = (int)transactions.Max(t => gfx.MeasureString(t.Description, regularFont).Width);
             int maxAmountWidth = (int)transactions.Max(t => gfx.MeasureString(t.Amount.ToString("C"), regularFont).Width);
-            int maxTypeWidth = (int)transactions.Max(t => gfx.MeasureString(t.Type, regularFont).Width);
 
             int padding = 10;
             maxDateWidth += padding;
+            maxTypeWidth += padding;
             maxDescriptionWidth += padding;
             maxAmountWidth += padding;
-            maxTypeWidth += padding;
 
             double pageWidth = page.Width - 100;
-            double totalWidth = maxDateWidth + maxDescriptionWidth + maxAmountWidth + maxTypeWidth;
+            double totalWidth = maxDateWidth + maxTypeWidth + maxDescriptionWidth + maxAmountWidth;
 
             double scaleFactor = pageWidth / totalWidth;
 
             double adjustedDateWidth = maxDateWidth * scaleFactor;
+            double adjustedTypeWidth = maxTypeWidth * scaleFactor;
             double adjustedDescriptionWidth = maxDescriptionWidth * scaleFactor;
             double adjustedAmountWidth = maxAmountWidth * scaleFactor;
-            double adjustedTypeWidth = maxTypeWidth * scaleFactor;
 
             int startY = 120;
             int rowHeight = 20;
             gfx.DrawString("Date", regularFont, XBrushes.Black, new XPoint(50, startY));
-            gfx.DrawString("Description", regularFont, XBrushes.Black, new XPoint(50 + adjustedDateWidth, startY));
-            gfx.DrawString("Amount", regularFont, XBrushes.Black, new XPoint(50 + adjustedDateWidth + adjustedDescriptionWidth, startY));
-            gfx.DrawString("Type", regularFont, XBrushes.Black, new XPoint(50 + adjustedDateWidth + adjustedDescriptionWidth + adjustedAmountWidth, startY));
+            gfx.DrawString("Type", regularFont, XBrushes.Black, new XPoint(50 + adjustedDateWidth, startY));
+            gfx.DrawString("Description", regularFont, XBrushes.Black, new XPoint(50 + adjustedDateWidth + adjustedTypeWidth, startY));
+            gfx.DrawString("Amount", regularFont, XBrushes.Black, new XPoint(50 + adjustedDateWidth + adjustedTypeWidth + adjustedDescriptionWidth, startY));
 
             gfx.DrawLine(XPens.Black, 50, startY + rowHeight, page.Width - 50, startY + rowHeight);
 
@@ -135,9 +135,9 @@ namespace Financial_Dashboard_App.ViewModels
             foreach(var transaction in transactions)
             {
                 gfx.DrawString(transaction.Date.ToShortDateString(), regularFont, XBrushes.Black, new XPoint(50, currentY));
-                gfx.DrawString(transaction.Description, regularFont, XBrushes.Black, new XPoint(50 + adjustedDateWidth, currentY));
-                gfx.DrawString(transaction.Amount.ToString("C"), regularFont, XBrushes.Black, new XPoint(50 + adjustedDateWidth + adjustedDescriptionWidth, currentY));
-                gfx.DrawString(transaction.Type, regularFont, XBrushes.Black, new XPoint(50 + adjustedDateWidth + adjustedDescriptionWidth + adjustedAmountWidth, currentY));
+                gfx.DrawString(transaction.Type, regularFont, XBrushes.Black, new XPoint(50 + adjustedDateWidth, currentY));
+                gfx.DrawString(transaction.Description, regularFont, XBrushes.Black, new XPoint(50 + adjustedDateWidth + adjustedTypeWidth, currentY));
+                gfx.DrawString(transaction.Amount.ToString("C"), regularFont, XBrushes.Black, new XPoint(50 + adjustedDateWidth + adjustedTypeWidth + adjustedDescriptionWidth, currentY));
 
                 currentY += rowHeight;
             }
