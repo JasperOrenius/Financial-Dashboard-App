@@ -33,7 +33,7 @@ A WPF application for managing financial transactions, generating reports, and v
 ## Installation & Setup
 1. Clone the repository:
    ```sh
-   git clone https://github.com/yourusername/Financial-Dashboard-App.git
+   git clone https://github.com/JasperOrenius/Financial-Dashboard-App.git
 2. Open the project in **Visual Studio**
 3. Build and run the application
 
